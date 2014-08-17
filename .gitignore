@@ -9,6 +9,8 @@ __pycache__/
 *.py~
 *.~
 
+*.csv
+
 # Distribution / packaging
 .Python
 env/
