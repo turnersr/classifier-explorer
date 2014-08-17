@@ -7,7 +7,12 @@ __pycache__/
 
 # emacs saved files 
 *.py~
-*.~
+*~
+
+*.sh~
+
+*.csv
+*.tar.gz
 
 # Distribution / packaging
 .Python
