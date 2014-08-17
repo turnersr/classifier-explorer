@@ -11,8 +11,14 @@ __pycache__/
 
 *.sh~
 
+.py#
+*.sh#
+*.csv#
+*.csv~
+
 *.csv
 *.tar.gz
+datasets/
 
 # Distribution / packaging
 .Python
