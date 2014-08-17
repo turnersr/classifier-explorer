@@ -5,6 +5,10 @@ __pycache__/
 # C extensions
 *.so
 
+# emacs saved files 
+*.py~
+*.~
+
 # Distribution / packaging
 .Python
 env/
