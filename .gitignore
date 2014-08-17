@@ -15,7 +15,8 @@ __pycache__/
 *.sh#
 *.csv#
 *.csv~
-
+*.zip.*
+*.tar.gz.*
 
 # -*- mode: gitignore; -*-
 *~
