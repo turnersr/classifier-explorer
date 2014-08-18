@@ -7,6 +7,7 @@ import os, re, math, time, pickle, csv
 import pandas as pd
 import numpy as np
 from collections import Counter
+from IPython.parallel import Client
 
 # <codecell>
 
