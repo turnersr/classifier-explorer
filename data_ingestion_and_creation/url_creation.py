@@ -6,14 +6,16 @@
 import pandas as pd
 import time
 import csv
+import sys,os
 
 
 # In[100]:
 
 def get_url(x,heading):
+    dim = (231,231)
     latitude = x[0]
     longitude = x[1]
-    base_url = "http://maps.googleapis.com/maps/api/streetview?size=256x256&location=%f,%f&heading=%f&pitch=%f&key=AIzaSyBZBHzMBCtplYvXCeg1NbdIJc8MpIXR-4U" %(latitude,longitude, heading,0)
+    base_url = "http://maps.googleapis.com/maps/api/streetview?size=%dx%d&location=%f,%f&heading=%f&pitch=%f&key=AIzaSyBZBHzMBCtplYvXCeg1NbdIJc8MpIXR-4U" %(dim[0],dim[1],latitude,longitude, heading,0)
     return base_url
 
 
@@ -28,8 +30,11 @@ def create_url_col(x, outfile):
 
 # In[102]:
 
-mappping = {"/mnt/data/nfp_bk/nfp3/streetscore_dataset/streetscore_boston.csv":"boston_urls.csv",
-            "/mnt/data/nfp_bk/nfp3/streetscore_dataset/streetscore_newyorkcity.csv":"newyorkcity_urls.csv" }
+outpath = os.path.realpath('../datasets/url_queries') + "/"
+inpath = os.path.realpath('../datasets/streetscore_dataset/') + "/"
+
+mappping = {inpath + "streetscore_boston.csv": outpath + "boston_urls.csv",
+            inpath + "streetscore_newyorkcity.csv": outpath + "newyorkcity_urls.csv" }
 
 def create_url_queries(lat_long_file_to_outfile):
     for infile, outfile in lat_long_file_to_outfile.items():

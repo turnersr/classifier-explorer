@@ -1,7 +1,6 @@
 import numpy as np
-import glob as g
-
-feature_dir = "/mnt/data/nfp_bk/nfp3/OverFeat/representation/"
+from glob import glob
+#from ..data_ingestion_and_creation.test import goo
 
 def overfeat_to_numpy(feature_path):
     final = []
@@ -20,6 +19,17 @@ def assemble_feature_matrix(feature_path_list):
     RM = np.vstack(features)
     return RM
 
+def design_matrix_with_target(positive_examples,negative_examples):
 
-feature_path_list = g.glob(feature_dir + "*.features")
-RM = assemble_feature_matrix(feature_path_list )
+    positive_feature_path_list = glob(positive_examples + "*.features")
+    RM_positive = assemble_feature_matrix(positive_feature_path_list)
+
+    negative_feature_path_list = glob(negative_examples + "*.features")
+    RM_negative = assemble_feature_matrix(positive_feature_path_list)
+
+    y_neg = np.zeros(RM_negative.shape[0])
+    y_pos = np.ones(RM_positive.shape[0])
+
+    X = np.vstack([RM_positive, RM_negative])
+    y = np.hstack([y_pos,y_neg])
+    return X,y
