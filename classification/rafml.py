@@ -13,6 +13,12 @@ from sklearn.base import clone
 from sklearn.linear_model import SGDClassifier
 from sklearn.ensemble import BaggingClassifier 
 
+from sklearn.externals import joblib
+from sklearn.externals.joblib import Parallel, delayed, logger
+from sklearn.base import clone
+
+import hashlib
+
 from sklearn.metrics import f1_score,confusion_matrix, roc_curve, roc_auc_score, auc, precision_recall_curve, precision_score,recall_score, accuracy_score, confusion_matrix
 
 def test_classifier(clf, X_test, y_true):
@@ -94,6 +100,100 @@ def test_classifier(clf, X_test, y_true):
     metric_row["parameters"] = clf.get_params()
     metric_row["y_predicted"] = y_predicted
     return metric_row
+
+def save_classifier(clf, model_directory):
+    """Save a classifier
+
+    Parameters
+    ----------
+    clf : classifier to be saved
+    model_directory : the top-level directory of where to save the model
+    
+        
+    Returns
+    ----------
+    final_path : the location of the file to load the model
+
+    """
+
+    parameter_string = hashlib.md5(str(clf.get_params())).hexdigest()
+    model = str(clf).split("(")[0]
+    final_path = model +"_" + parameter_string + ".pkl"
+    estimator_state_location = model_directory + final_path
+    filenames = joblib.dump(clf, estimator_state_location)
+    return final_path
+
+
+def fit_save_evaluate(model_directory, clf, X_train, y_train, X_test, y_test):
+    """ Fit, save, and evaluate a classifier
+
+    Parameters
+    ----------
+    model_directory : the top-level directory of where to save the model
+    clf : classifier 
+    X_train : training data, numpy matrix of shape=(n_mothers, m_obeservations)
+    y_train : ground truth labels for training data, numpy array of shape=(n_mothers,)
+    X_test : testing data, numpy matrix of shape=(k_mothers, m_observations)
+    y_test : ground truth labels for testing data, numpy array of shape=(n_mothers,)
+    
+         
+    Returns
+    ----------
+    result : If there is an error, then None. Otherwise, return a dictionary that stores name of learning problem, model performance metircs, name of the model, parameters of model, predictions made, and the location of the trained model. 
+    """
+
+    result = None
+    try:
+        clf.fit(X_train,y_train)
+    except Exception,e:
+        return result 
+    try:
+        model_location = save_classifier(clf, model_directory)
+        result = test_classifier(clf, X_test,y_test)
+        
+
+        result["model_location"] = model_location
+        if not result["roc_auc_score"] - .5 <= .005:
+            print result["roc_auc_score"], result["estimator"] 
+        return result
+    except ValueError:
+        return result 
+
+
+def train_save_test_multiple_classifiers(model_directory, number_jobs, classifiers_to_fit, X_train, y_train, X_test, y_test):
+    """ Fit, save, and evaluate a list of classifiers
+
+    Parameters
+    ----------
+    model_directory : the top-level directory of where to save the model
+    number_jobs : number of jobs to run in parallel
+    classifiers_to_fit : list of instantiated sklearn classifiers
+    X_train : training data, numpy matrix of shape=(n_mothers, m_obeservations)
+    y_train : ground truth labels for training data, numpy array of shape=(n_mothers,)
+    X_test : testing data, numpy matrix of shape=(k_mothers, m_observations)
+    y_test : ground truth labels for testing data, numpy array of shape=(n_mothers,)
+    
+         
+    Returns
+    ----------
+    classification_result : A list of dictionaries were each dictionary saves the name of learning problem, model performance metircs, name of the model, parameters of model, predictions made, and the location of the trained model. 
+    """
+
+
+    classification_result = []
+    parallel = Parallel(n_jobs=number_jobs, verbose=1,
+                        pre_dispatch='2*n_jobs')
+    scores = parallel(delayed(fit_save_evaluate)(model_directory, clone(clf), 
+                                                 X_train,y_train,X_test,y_test)
+    for clf in classifiers_to_fit)
+    
+    # Remove all the empty results 
+    for s in scores:
+        if s != None:
+            classification_result.append(s)
+    return classification_result
+
+
 
 class TrainingStack(object):
     def __init__(self):
