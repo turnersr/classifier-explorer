@@ -23,3 +23,29 @@ ls path_to_data_classes/class_0
 ```
 
 ```./sklearn_predict configuration_file``` will run through all models specified in the configure file and save off various metrics.
+
+
+# Issues
+
+```Image does not have 8-bits components```
+
+## Library not loaded
+```dyld: Library not loaded: /opt/local/lib/libgcc/libgomp.1.dylib
+  Referenced from: OverFeat/bin/macos/overfeatcmd
+  Reason: image not found
+sh: line 1: 17388 Done                    convert samples/bee.jpg -resize 231x231^ ppm:-
+     17389 Abort trap: 6           | OverFeat/bin/macos/overfeatcmd OverFeat/data/default/net_weight_0 6 0 19 ```
+     
+     ```$ otool -L bin/macos/overfeatcmd
+bin/macos/overfeatcmd:
+	/System/Library/Frameworks/Accelerate.framework/Versions/A/Accelerate (compatibility version 1.0.0, current version 4.0.0)
+	/opt/local/lib/libgcc/libstdc++.6.dylib (compatibility version 7.0.0, current version 7.18.0)
+	/opt/local/lib/libgcc/libgomp.1.dylib (compatibility version 2.0.0, current version 2.0.0)
+	/usr/lib/libSystem.B.dylib (compatibility version 1.0.0, current version 1197.1.1)
+	/opt/local/lib/libgcc/libgcc_s.1.dylib (compatibility version 1.0.0, current version 1.0.0)```
+  
+  ```$ install_name_tool -change /opt/local/lib/libgcc/libgomp.1.dylib /usr/local/Cellar/gcc/8.1.0/lib/gcc/8/libgomp.1.dylib bin/macos/overfeatcmd```
+  
+  ```$ install_name_tool -change /opt/local/lib/libgcc/libstdc++.6.dylib /usr/local/Cellar/gcc/8.1.0/lib/gcc/8/libstdc++.6.dylib bin/macos/overfeatcmd``
+     
+     
