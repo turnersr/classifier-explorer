@@ -4,7 +4,7 @@ This repo is a set of tools for assessing the performance of a wide range of cla
 # Usage
 If you have a classification problem and a need to test a variety of classifiers and their parameters in parallel without much setup, then this is the tool.
 
-```./scikit-learn_predict configuration_file.yaml``` is the main function and configure_file.yaml specifies all models and parameter ranges to use. It will evaluate models in parallel. This program will save all trained models as well as the results of 10 different classification metrics. An example configuration file is given in model.yaml .
+```python3 scikit-learn_predict configuration_file.yaml``` is the main function and configure_file.yaml specifies all models and parameter ranges to use. It will evaluate models in parallel. This program will save all trained models as well as the results of 10 different classification metrics. An example configuration file is given in model.yaml .
 
 
 # Quick start
