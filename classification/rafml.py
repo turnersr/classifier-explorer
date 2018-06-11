@@ -1,8 +1,8 @@
 from sklearn.ensemble import RandomForestClassifier, ExtraTreesClassifier, GradientBoostingClassifier,AdaBoostClassifier
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.naive_bayes import GaussianNB
-from sklearn.qda import QDA
-from sklearn.lda import LDA
+from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis as QDA
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.grid_search import ParameterGrid
 from sklearn.linear_model import LogisticRegression
@@ -40,15 +40,15 @@ def test_classifier(clf, X_test, y_true):
     score_functions = [f1_score,precision_score,recall_score]
 
     y_predicted = clf.predict(X_test)
-    
-    
+
     for s_function in score_functions:
-        metric_row[s_function.__name__] = s_function(y_true,y_predicted)
+        metric_row[s_function.__name__] = s_function(y_true, y_predicted, average='weighted')
         
     # Not all classifiers can return a soft classification. 
     # So not all models will have a roc or precision and recall curves
 
     y_score = None
+
     if hasattr(clf,'predict_proba'):
         try:
             y_score = clf.predict_proba(X_test)
@@ -65,40 +65,49 @@ def test_classifier(clf, X_test, y_true):
 
     if hasattr(clf, 'feature_importances_'):
         metric_row["feature_importance"] = clf.feature_importances_
-    
+
+
     try:
-        if y_score != None:
+        if y_score.size > 0:
             
-            # sometimes y_score is a redundant matrix indicating the probability of each class. 
+            # sometimes y_score is a redundant matrix indicating the probability of each class.
+
             if len(y_score.shape) >= 2 and y_score.shape[1] >= 2:
                 y_score = y_score[:,1]
             
-            assert y_score.shape[0] == X_test.shape[0], "y_scores not the dimension as the test matrix" 
-            precision, recall, thresholds = precision_recall_curve(y_true, y_score)
-            metric_row["precision_curve"] = precision
-            metric_row["recall_curve"] = recall
-            metric_row["precision_recall_curve_thresholds"] = thresholds
-            fpr, tpr, thresholds = roc_curve(y_true,  y_score)
-            metric_row["fpr"] = fpr
-            metric_row["tpr"] = tpr
-            metric_row["roc_curve_thresholds"] = thresholds
-            metric_row["roc_auc_score"] = auc(fpr, tpr)
+            assert y_score.shape[0] == X_test.shape[0], "y_scores not the dimension as the test matrix"
 
-            
+            try:
+                precision, recall, thresholds = precision_recall_curve(y_true, y_score)
+                metric_row["precision_curve"] = precision
+                metric_row["recall_curve"] = recall
+                metric_row["precision_recall_curve_thresholds"] = thresholds
+            except Exception as e:
+                metric_row["precision_curve"] = None
+                metric_row["recall_curve"] = None
+                metric_row["precision_recall_curve_thresholds"] = None
 
-    except Exception, e:
-        #print e
-        metric_row["precision_curve"] = None
-        metric_row["recall_curve"] = None
-        metric_row["precision_recall_curve_thresholds"] = None
-        metric_row["fpr"] = None
-        metric_row["tpr"] = None
-        metric_row["roc_curve_thresholds"] = None
-        metric_row["roc_auc_score"] = None
+
+            try:
+                fpr, tpr, thresholds = roc_curve(y_true,  y_score)
+                metric_row["fpr"] = fpr
+                metric_row["tpr"] = tpr
+                metric_row["roc_curve_thresholds"] = thresholds
+                metric_row["roc_auc_score"] = auc(fpr, tpr)
+            except Exception as e:
+                metric_row["fpr"] = None
+                metric_row["tpr"] = None
+                metric_row["roc_curve_thresholds"] = None
+                metric_row["roc_auc_score"] = None
+
+    except Exception as e:
+        pass
+        #print(e)
 
     metric_row["estimator"] = str(clf).split("(")[0]
     metric_row["parameters"] = clf.get_params()
     metric_row["y_predicted"] = y_predicted
+
     return metric_row
 
 def save_classifier(clf, model_directory):
@@ -116,7 +125,7 @@ def save_classifier(clf, model_directory):
 
     """
 
-    parameter_string = hashlib.md5(str(clf.get_params())).hexdigest()
+    parameter_string = hashlib.md5(str(clf.get_params()).encode('utf-8')).hexdigest()
     model = str(clf).split("(")[0]
     final_path = model +"_" + parameter_string + ".pkl"
     estimator_state_location = model_directory + final_path
@@ -145,7 +154,7 @@ def fit_save_evaluate(model_directory, clf, X_train, y_train, X_test, y_test):
     result = None
     try:
         clf.fit(X_train,y_train)
-    except Exception,e:
+    except Exception as e:
         return result 
     try:
         model_location = save_classifier(clf, model_directory)
@@ -153,10 +162,8 @@ def fit_save_evaluate(model_directory, clf, X_train, y_train, X_test, y_test):
         
 
         result["model_location"] = model_location
-        if not result["roc_auc_score"] - .5 <= .005:
-            print result["roc_auc_score"], result["estimator"] 
         return result
-    except ValueError:
+    except Exception as e:
         return result 
 
 
@@ -183,14 +190,19 @@ def train_save_test_multiple_classifiers(model_directory, number_jobs, classifie
     classification_result = []
     parallel = Parallel(n_jobs=number_jobs, verbose=1,
                         pre_dispatch='2*n_jobs')
+    
     scores = parallel(delayed(fit_save_evaluate)(model_directory, clone(clf), 
-                                                 X_train,y_train,X_test,y_test)
-    for clf in classifiers_to_fit)
+                                                     X_train,y_train,X_test,y_test)
+                   for clf in classifiers_to_fit)
+
+#    for clf in classifiers_to_fit:
+#        fit_save_evaluate(model_directory, clone(clf), X_train,y_train,X_test,y_test)
     
     # Remove all the empty results 
     for s in scores:
         if s != None:
             classification_result.append(s)
+            
     return classification_result
 
 
