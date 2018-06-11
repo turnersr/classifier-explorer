@@ -20,7 +20,7 @@ will work and save the trained models in ```model_files/``` and the classificati
 
 # Example Senario - Work in progess. Not ready yet
 
-In this example, we use the [OverFeat CNN](https://github.com/sermanet/OverFeat) as a feature extraction tool as test 100 hundreds of different classifier in parallel. 
+In this example, we use the [OverFeat CNN](https://github.com/sermanet/OverFeat) as a feature extraction tool and test 100  classifiers in parallel. 
 
 For this example, The image data is assumed to be in different directories for each digit class.
 
