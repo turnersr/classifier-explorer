@@ -1,12 +1,28 @@
-# cnn_pipeline
-This repo is a set of tools for working with the [OverFeat CNN](https://github.com/sermanet/OverFeat) and scikit-learn to accomplish machine learning tasks. 
-
-This project as initially grew out of a project for predicting housing prices using Google Street view data, but the data-mangling and old code has been removed. It can be referred to in the git history.
+# Classifier Explorer
+This repo is a set of tools for assessing the performance of a wide range of classifiers and their parameters in parallel using scikit-learn.
 
 # Usage
-The main application is based on the scenario where one has a classification problem and would like to use the [OverFeat CNN](https://github.com/sermanet/OverFeat) as a feature extraction tool. 
+If one has classification problem and the need to test a wide variety of classifiers and their parameters in parallel without much fuss or setup, then this is the tool.
 
-The image data is assumed to be in different directories for each class. This example we are going to classify digits:
+```./scikit-learn_predict configuration_file.yaml``` is the main function and configure_file.yaml specifies all the models and parameter ranges to use. It will evaluate all the models in parallel. It will save all the trained models as well as the results of 10 different classification metrics. An example configuration file is given as in model.yaml .
+
+
+# Quick start
+
+assuming your observation is data datasets/X.npy and the targets saved as datasets/y.np, then
+```
+python3 scikit-learn_predict model.yaml
+```
+
+will work and save the trained models in ```model_files/``` and the classification performance data in ```model_metrics```
+
+```python3 model_evaluation/classification_report.py model_metrics/``` will print out an overview of performance. 
+
+# Example Senario - Work in progess. Not ready yet
+
+In this example, we use the [OverFeat CNN](https://github.com/sermanet/OverFeat) as a feature extraction tool as test 100 hundreds of different classifier in parallel. 
+
+For this example, The image data is assumed to be in different directories for each digit class.
 
 ``` bash
 class_0 class_1 class_2 class_3 class_4 class_5 class_6 class_7 class_8 class_9
@@ -25,9 +41,9 @@ ls path_to_data_classes/class_0
 ```./sklearn_predict configuration_file``` will run through all models specified in the configure file and save off various metrics.
 
 
-# Issues
+## Issues with the example
 
-## Library not loaded
+### Library not loaded
 ```
 dyld: Library not loaded: /opt/local/lib/libgcc/libgomp.1.dylib
   Referenced from: OverFeat/bin/macos/overfeatcmd
@@ -39,14 +55,14 @@ sh: line 1: 17388 Done                    convert samples/bee.jpg -resize 231x23
 ```
 $ otool -L bin/macos/overfeatcmd
 bin/macos/overfeatcmd:
-	/System/Library/Frameworks/Accelerate.framework/Versions/A/Accelerate (compatibility version 1.0.0, current version 4.0.0)
-	/opt/local/lib/libgcc/libstdc++.6.dylib (compatibility version 7.0.0, current version 7.18.0)
-	/opt/local/lib/libgcc/libgomp.1.dylib (compatibility version 2.0.0, current version 2.0.0)
-	/usr/lib/libSystem.B.dylib (compatibility version 1.0.0, current version 1197.1.1)
-	/opt/local/lib/libgcc/libgcc_s.1.dylib (compatibility version 1.0.0, current version 1.0.0)
+    /System/Library/Frameworks/Accelerate.framework/Versions/A/Accelerate (compatibility version 1.0.0, current version 4.0.0)
+    /opt/local/lib/libgcc/libstdc++.6.dylib (compatibility version 7.0.0, current version 7.18.0)
+    /opt/local/lib/libgcc/libgomp.1.dylib (compatibility version 2.0.0, current version 2.0.0)
+    /usr/lib/libSystem.B.dylib (compatibility version 1.0.0, current version 1197.1.1)
+    /opt/local/lib/libgcc/libgcc_s.1.dylib (compatibility version 1.0.0, current version 1.0.0)
 ```
 
-Fix the refernce to the gcc libraries:
+Fix the reference to the GCC libraries:
 
 ```
   $ install_name_tool -change /opt/local/lib/libgcc/libgomp.1.dylib /usr/local/Cellar/gcc/8.1.0/lib/gcc/8/libgomp.1.dylib bin/macos/overfeatcmd
@@ -57,3 +73,5 @@ Fix the refernce to the gcc libraries:
 ``
      
      
+# Historical Notes
+This initially grew out of a project for predicting housing prices using Google Street view data and [OverFeat CNN](https://github.com/sermanet/OverFeat), but the data-mangling and old code has been removed. It can be referred to in the git history. The initial motivation for this library can be found at https://nsauder.github.io/streetscope/. The project also used to be called cnn_pipeline but the name as changed, too.
