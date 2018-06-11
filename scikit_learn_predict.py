@@ -24,7 +24,7 @@ print(y.shape)
 
 final_results = []
 total_clf = len(classifier_stack.classifiers_to_fit)
-print("[x] total classifies %d" % total_clf)
+print("[x] total classifiers %d" % total_clf)
 t = X.shape[0]
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=None, random_state=55)
 
