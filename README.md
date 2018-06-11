@@ -20,4 +20,4 @@ will work and save the trained models in ```model_files/``` and the classificati
 
      
 # Historical Notes
-This initially grew out of a project for predicting housing prices using Google Street view data and [OverFeat CNN](https://github.com/sermanet/OverFeat), but the data-mangling and old code has been removed. It can be referred to in the git history. The initial motivation for this library can be found at https://nsauder.github.io/streetscope/. The project also used to be called cnn_pipeline but the name as changed, too.
+This initially grew out of a project for predicting housing prices using Google Street view data and [OverFeat CNN](https://github.com/sermanet/OverFeat), but the data-mangling and old code has been removed. It can be referred to in the git history. The initial motivation for this library can be found at https://nsauder.github.io/streetscope/. The project also used to be called cnn_pipeline but the name changed, too.
