@@ -2,21 +2,21 @@
 This repo is a set of tools for assessing the performance of a wide range of classifiers and their parameters in parallel using scikit-learn.
 
 # Usage
-If one has classification problem and the need to test a wide variety of classifiers and their parameters in parallel without much fuss or setup, then this is the tool.
+If you have a classification problem and a need to test a variety of classifiers and their parameters in parallel without much setup, then this is the tool.
 
-```./scikit-learn_predict configuration_file.yaml``` is the main function and configure_file.yaml specifies all the models and parameter ranges to use. It will evaluate all the models in parallel. It will save all the trained models as well as the results of 10 different classification metrics. An example configuration file is given as in model.yaml .
+```./scikit-learn_predict configuration_file.yaml``` is the main function and configure_file.yaml specifies all models and parameter ranges to use. It will evaluate models in parallel. This program will save all trained models as well as the results of 10 different classification metrics. An example configuration file is given in model.yaml .
 
 
 # Quick start
 
-assuming your observation is data datasets/X.npy and the targets saved as datasets/y.np, then
+assuming your observations are datasets/X.npy and targets saved in datasets/y.np, then
 ```
 python3 scikit-learn_predict model.yaml
 ```
 
 will work and save the trained models in ```model_files/``` and the classification performance data in ```model_metrics```
 
-```python3 model_evaluation/classification_report.py model_metrics/``` will print out an overview of performance. 
+```python3 model_evaluation/classification_report.py model_metrics/``` will give an overview of performance. 
 
 # Example Senario - Work in progess. Not ready yet
 
@@ -67,7 +67,7 @@ Fix the reference to the GCC libraries:
   
 ```
   $ install_name_tool -change /opt/local/lib/libgcc/libstdc++.6.dylib /usr/local/Cellar/gcc/8.1.0/lib/gcc/8/libstdc++.6.dylib bin/macos/overfeatcmd
-``
+```
      
      
 # Historical Notes
